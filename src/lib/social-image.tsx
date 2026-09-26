@@ -1,0 +1,5 @@
+import { ImageResponse } from "next/og";
+const size = { width: 1200, height: 630 };
+export default function OpenGraphImage() {
+  return new ImageResponse(<div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "center", padding: "80px", background: "#070B14", color: "#f7f8fc" }}><div style={{ display: "flex", alignItems: "center", fontSize: 30, marginBottom: 48 }}><div style={{ width: 50, height: 50, borderRadius: 14, background: "linear-gradient(135deg, #5D0EFF, #B026FF)", display: "flex", alignItems: "center", justifyContent: "center", marginRight: 16, fontSize: 25 }}>L</div>Life OS</div><div style={{ display: "flex", flexDirection: "column", fontSize: 78, fontWeight: 700, letterSpacing: "-3px", lineHeight: 1.14 }}><span>Organize sua vida.</span><span style={{ color: "#c791ff" }}>Em um só lugar.</span></div><div style={{ fontSize: 24, color: "#9ba4b8", marginTop: 38 }}>Mais clareza para o seu dia. Mais espaço para a sua vida.</div></div>, size);
+}
