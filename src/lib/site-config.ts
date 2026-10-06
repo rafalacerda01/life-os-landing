@@ -9,7 +9,7 @@ function publicOrigin(value: string | undefined): string | null {
 
 export const siteConfig = {
   name: "Life OS",
-  description: "Tarefas, hábitos, metas, foco, estudos, finanças e saúde em uma única experiência. Organize sua vida com o Life OS.",
+  description: "Organize tarefas, estudos, finanças, saúde e check-ins com o Life OS. Uma rotina integrada, offline-first, com Círculos e inteligência opcional.",
   url: publicOrigin(process.env.NEXT_PUBLIC_SITE_URL),
   googlePlayUrl: null as string | null,
   pricing: null as { monthly: string | null; annual: string | null } | null,

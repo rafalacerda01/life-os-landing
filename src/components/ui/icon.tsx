@@ -23,6 +23,9 @@ const paths = {
   play: <path d="m7 4 13 8-13 8V4Z" />,
   leaf: <><path d="M20 3C8 2 1 10 7 17S22 14 20 3Z" /><path d="m5 21 10-10" /></>,
   bell: <><path d="M5 17h14l-2-3V9a5 5 0 0 0-10 0v5l-2 3ZM10 21h4" /></>,
+  checkin: <><rect x="4" y="5" width="16" height="16" rx="3" /><path d="M8 3v4M16 3v4m-8 7 3 3 5-6" /></>,
+  circles: <><circle cx="9" cy="8" r="3" /><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M18 15a5 5 0 0 1 3 5" /></>,
+  analytics: <><path d="M4 3v18h17M8 16v-4M13 16V8M18 16V5" /></>,
 } as const;
 export type IconName = keyof typeof paths;
 export function Icon({ name, size = 20, className, style }: { name: IconName; size?: number; className?: string; style?: CSSProperties }) {

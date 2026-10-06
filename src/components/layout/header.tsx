@@ -7,7 +7,7 @@ import { Logo } from "../ui/logo";
 import { Icon } from "../ui/icon";
 import { CTAButton } from "../ui/cta-button";
 
-const navigation = [{ label: "Recursos", href: "/#recursos" }, { label: "Como funciona", href: "/#como-funciona" }, { label: "Premium", href: "/#premium" }, { label: "FAQ", href: "/#faq" }];
+const navigation = [{ label: "Recursos", href: "/#recursos" }, { label: "Como funciona", href: "/#como-funciona" }, { label: "AI Companion", href: "/#ai-companion" }, { label: "Premium", href: "/#premium" }, { label: "FAQ", href: "/#faq" }];
 
 export function Header() {
   const [open, setOpen] = useState(false);

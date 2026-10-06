@@ -83,7 +83,7 @@ async function verifyMobileMenu(page, viewport) {
     assert(await panel.evaluate(element => element.scrollTop > 0), "Wheel deve rolar o painel");
   }
   await toggle.focus();
-  for (let index = 0; index < 4; index++) await page.keyboard.press("Tab");
+  for (let index = 0; index < await panel.getByRole("link").count(); index++) await page.keyboard.press("Tab");
   const faq = panel.getByRole("link", { name: "FAQ" });
   assert(await faq.evaluate(element => element === document.activeElement), "Todos os itens devem ser acessíveis com Tab");
   const faqBounds = await faq.boundingBox();
@@ -125,6 +125,18 @@ try {
     assert.equal(await page.locator('a[href="#"]').count(), 0);
     assert.equal(await page.locator('a[href*="play.google"]').count(), 0);
     await verifyHomeMetadata(page);
+    assert.equal(await page.locator(".feature-card").count(), 13);
+    assert.equal(await page.locator(".feature-group").count(), 3);
+    assert.equal(await page.locator(".faq-item").count(), 14);
+    for (const name of ["Visão geral", "Check-in", "Central de Notificações", "Círculos", "Analytics", "AI Companion"]) {
+      assert.equal(await page.locator(".feature-card").getByRole("heading", { name, exact: true }).count(), 1);
+    }
+    assert.equal(await page.locator(".logo-mark svg").count(), 0);
+    assert.equal(await page.locator(".header .logo-mark img").getAttribute("alt"), "");
+    assert(await page.locator(".header .logo-mark img").evaluate(img => img.complete && img.naturalWidth > 0));
+    assert.equal(await page.locator(".desktop-nav").getByRole("link", { name: "AI Companion", includeHidden: true }).count(), 1);
+    assert.doesNotMatch(await page.locator("main").innerText(), /Mercado|WhatsApp|R\$\s*19|25\s*\/\s*50\s*\/\s*90/);
+
     assert.match(await page.locator(".product-preview figcaption").innerText(), /Não representa uma tela real/);
     await noOverflow(page, viewport.name);
 
@@ -224,7 +236,7 @@ try {
     const response = await page.goto(`${baseUrl}/${route}`, { waitUntil: "networkidle" });
     assert.equal(response.status(), 200);
     assert.equal(await page.locator("main h1").count(), 1);
-    assert.match(await page.locator(".pending-notice").innerText(), /pendente de revisão/);
+    assert.match(await page.locator(".pending-notice").innerText(), /revisão|confirm|verificad/i);
     assert.match(await page.locator('meta[name="robots"]').getAttribute("content"), /noindex/);
     const crawlerResponse = await context.request.get(`${baseUrl}/${route}`, { headers: { "User-Agent": "Googlebot" } });
     assert.equal(crawlerResponse.status(), 200);
@@ -233,7 +245,12 @@ try {
     await noOverflow(page, route);
     results.push({ route: `/${route}`, result: "PASS", checks: "HTTP 200, metadata, aviso editorial, overflow mobile" });
   }
+  assert.match(await page.locator(".institutional-content").innerText(), /Gerenciamento da Conta/);
+  assert.equal(await page.locator(".institutional-steps li").count(), 4);
+  assert.match(await page.locator(".institutional-content").innerText(), /senha atual|senha|Google/);
+  assert.doesNotMatch(await page.locator(".institutional-content").innerText(), /procedimento oficial ainda precisa ser confirmado/i);
   await page.screenshot({ path: new URL("institutional-mobile.png", artifactDir).pathname.replace(/^\/(\w:)/, "$1"), fullPage: true });
+
 
   const noJs = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const noJsPage = await noJs.newPage();
@@ -283,6 +300,29 @@ try {
   const locations = Array.from(sitemapText.matchAll(/<loc>(.*?)<\/loc>/g), match => new URL(match[1]).href);
   assert.deepEqual(locations, siteOrigin ? [new URL("/", siteOrigin).href] : []);
   for (const route of ["privacy", "terms", "support", "account-deletion"]) assert(!locations.some(url => new URL(url).pathname === `/${route}`));
+  const manifestResponse = await context.request.get(baseUrl + "/manifest.webmanifest");
+  assert.equal(manifestResponse.status(), 200);
+  const manifest = await manifestResponse.json();
+  assert.match(manifest.description, /check-ins/);
+  for (const icon of manifest.icons) {
+    const response = await context.request.get(baseUrl + icon.src);
+    assert.equal(response.status(), 200);
+    assert.match(response.headers()["content-type"], /image\/png/);
+    const bytes = await response.body();
+    const dimension = Number(icon.sizes.split("x")[0]);
+    assert.equal(bytes.readUInt32BE(16), dimension);
+    assert.equal(bytes.readUInt32BE(20), dimension);
+  }
+  const iconLinks = await page.locator('link[rel="icon"], link[rel="apple-touch-icon"]').evaluateAll(elements => elements.map(element => ({ href: element.href, sizes: element.getAttribute("sizes") })));
+  assert(iconLinks.some(icon => icon.sizes === "48x48"));
+  assert(iconLinks.some(icon => icon.sizes === "180x180"));
+  for (const icon of iconLinks) {
+    assert(!icon.href.includes("icon.svg"));
+    const response = await context.request.get(icon.href);
+    assert.equal(response.status(), 200);
+    assert.match(response.headers()["content-type"], /image\/png/);
+  }
+  results.push({ scenario: "Marca e produto atual", result: "PASS", checks: "13 módulos, 3 grupos, 14 FAQs, exclusão real, marca oficial, ícone, Apple icon e manifest" });
   const social = await context.request.get(`${baseUrl}/social-image`);
   assert.equal(social.status(), 200);
   assert.match(social.headers()["content-type"], /image\/png/);

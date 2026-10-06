@@ -1,8 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 
-export function LogoMark({ className = "" }: { className?: string }) {
-  return <span className={`logo-mark ${className}`} aria-hidden="true"><svg viewBox="0 0 28 28" fill="none"><path d="M8 6v15h13M13 6v10h8" stroke="white" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" /></svg></span>;
+export function LogoMark({ className = "", eager = false }: { className?: string; eager?: boolean }) {
+  return <span className={["logo-mark", className].join(" ")} aria-hidden="true"><Image src="/branding/life-os-mark.png" alt="" width={256} height={256} sizes="64px" loading={eager ? "eager" : "lazy"} /></span>;
 }
 export function Logo() {
-  return <Link href="/" className="brand" aria-label="Life OS — página inicial"><LogoMark /><span>Life <span className="brand-os">OS</span></span></Link>;
+  return <Link href="/" className="brand" aria-label="Life OS — página inicial"><LogoMark eager /><span>Life <span className="brand-os">OS</span></span></Link>;
 }
